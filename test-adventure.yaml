@@ -1,6 +1,18 @@
 ---
+start_room: "Room1"
 rooms:
+  - name: "intro"
+    description: "Welcome to this test adventure"
+    type: "warp"
+    destination: "intro2"
+    duration: 5
+  - name: "intro2"
+    description: "Your mission is about to begin"
+    type: "warp"
+    destination: "Room1"
+    duration: 5
   - name: "Room1"
+    message: "Hi there! This is a test adventure"
     description: |
       You are in an empty room. There is a pair of gloves on the floor
     emptyDescription: "You are in an empty room."
@@ -15,6 +27,8 @@ rooms:
         keys:
           - "gold key"
         destination: "East room"
+    show_message: true
+    show_help: true
   - name: "West room"
     description: "This is the west room. There is a gold key on the floor"
     emptyDescription: "This is the west room."
@@ -43,7 +57,7 @@ rooms:
     description: "You are flying through space"
     type: "warp"
     destination: "end room"
-    duration: 10
+    duration: 5
   - name: "end room"
     description: "Congratulations, you have reached the end!"
     type: "end"
