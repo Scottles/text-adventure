@@ -1,0 +1,69 @@
+---
+start_room: "intro"
+rooms:
+  - name: "intro"
+    description: "Welcome to this test adventure"
+    type: "warp"
+    destination: "intro2"
+    duration: 5
+  - name: "intro2"
+    description: "Your mission is about to begin"
+    type: "warp"
+    destination: "West room"
+    duration: 5
+  - name: "Room1"
+    description: |
+      You are in an empty room. There is a pair of gloves on the floor
+    emptyDescription: "You are in an empty room."
+    items:
+      - name: "gloves"
+    doors:
+      - name: "west"
+        open: true
+        destination: "West room"
+      - name: "east"
+        open: false
+        keys:
+          - "gold key"
+        destination: "East room"
+  - name: "West room"
+    message: "Hi there! This is a test adventure"
+    show_message: true
+    show_help: true
+    description: "This is the west room. There is a gold key on the floor"
+    emptyDescription: "This is the west room."
+    items:
+      - name: "gold key"
+        requiredToTake:
+          - "gloves"
+        requiredToTakeText: "You don't want to get finger prints on it"
+        requiredToUse:
+          - "gloves"
+        requiredToUseText: "You don't want to tarnish the gold finish"
+        takeText: "You put the gloves on and carefully pick up the gold key"
+        removeAfterUse: false
+    doors:
+      - name: "east"
+        open: true
+        destination: "Room1"
+  - name: "East room"
+    description: "This is the east room. To the south is a portal"
+    doors:
+      - name: "west"
+        open: true
+        destination: "Room1"
+      - name: "south"
+        type: "portal"
+        open: true
+        destination: "warp1"
+        blocks_entering:
+          - "gold key"
+        blocks_text: "You can not enter a portal whilst carrying gold"
+  - name: "warp1"
+    description: "You are flying through space"
+    type: "warp"
+    destination: "end room"
+    duration: 5
+  - name: "end room"
+    description: "Congratulations, you have reached the end!"
+    type: "end"
