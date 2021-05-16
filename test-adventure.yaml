@@ -5,12 +5,12 @@ rooms:
     description: "Welcome to this test adventure"
     type: "warp"
     destination: "intro2"
-    duration: 5
+    duration: 3
   - name: "intro2"
     description: "Your mission is about to begin"
     type: "warp"
     destination: "West room"
-    duration: 5
+    duration: 3
   - name: "Room1"
     description: |
       You are in an empty room. There is a pair of gloves on the floor
