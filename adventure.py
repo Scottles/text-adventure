@@ -233,7 +233,8 @@ class AdventureGame:
                                     )
                                 room['show_message'] = True
                             else:
-                                current_room = room['doors'][item]['destination']
+                                current_room = room['doors'][
+                                    item]['destination']
                         else:
                             path_blocked = False
                             if "keys" in room['doors'][item]:
