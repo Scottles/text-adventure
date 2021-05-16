@@ -374,7 +374,7 @@ class AdventureGame:
                     f"{item}"
                 )
                 room['show_message'] = True
-        elif action == "help":
+        elif action == "help" or action == "":
             room['show_help'] = True
         elif action == "exit":
             run_game = False
