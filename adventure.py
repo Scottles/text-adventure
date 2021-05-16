@@ -202,10 +202,11 @@ class AdventureGame:
         elif len(input_list) == 2:
             action, item = input_list
 
+        item = item.strip()
         current_room = room['name']
         run_game = True
 
-        if action == "go":
+        if action == "go" and item != "":
             found_door = False
             if item in room['doors']:
                 if "destination" in room['doors'][item]:
@@ -253,7 +254,7 @@ class AdventureGame:
             if found_door is False:
                 room['message'] = f"You can not go {item}"
                 room['show_message'] = True
-        elif action == "use":
+        elif action == "use" and item != "":
             if item in self.inventory:
                 remove_item = False
                 have_required_items = False
@@ -320,7 +321,7 @@ class AdventureGame:
                 )
                 room['show_message'] = True
             pass
-        elif action == "take":
+        elif action == "take" and item != "":
             if item in room['items']:
                 take_item = True
                 if "requiredToTake" in room['items'][item]:
@@ -358,7 +359,7 @@ class AdventureGame:
                     f"{item} here"
                 )
                 room['show_message'] = True
-        elif action == "drop":
+        elif action == "drop" and item != "":
             if item in self.inventory:
                 room['items'][item] = self.inventory[item]
                 del self.inventory[item]
