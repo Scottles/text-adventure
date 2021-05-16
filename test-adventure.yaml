@@ -1,5 +1,5 @@
 ---
-start_room: "Room1"
+start_room: "West room"
 rooms:
   - name: "intro"
     description: "Welcome to this test adventure"
@@ -9,10 +9,9 @@ rooms:
   - name: "intro2"
     description: "Your mission is about to begin"
     type: "warp"
-    destination: "Room1"
+    destination: "West room"
     duration: 5
   - name: "Room1"
-    message: "Hi there! This is a test adventure"
     description: |
       You are in an empty room. There is a pair of gloves on the floor
     emptyDescription: "You are in an empty room."
@@ -27,9 +26,10 @@ rooms:
         keys:
           - "gold key"
         destination: "East room"
+  - name: "West room"
+    message: "Hi there! This is a test adventure"
     show_message: true
     show_help: true
-  - name: "West room"
     description: "This is the west room. There is a gold key on the floor"
     emptyDescription: "This is the west room."
     items:
@@ -37,19 +37,20 @@ rooms:
         requiredToTake:
           - "gloves"
         requiredToTakeText: "You don't want to get finger prints on it"
-        requiredToUse: None
+        requiredToUse:
+          - "gloves"
         removeAfterUse: false
     doors:
       - name: "east"
         open: true
         destination: "Room1"
   - name: "East room"
-    description: "This is the east room"
+    description: "This is the east room. To the south is a portal"
     doors:
       - name: "west"
         open: true
         destination: "Room1"
-      - name: "portal"
+      - name: "south"
         type: "portal"
         open: true
         destination: "warp1"

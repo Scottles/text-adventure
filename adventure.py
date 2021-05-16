@@ -129,11 +129,11 @@ class AdventureGame:
 
         if "doors" in room:
             if room['doors']:
-                for doors in room['doors']:
+                for door in room['doors']:
                     if doors_string:
-                        doors_string = f"{doors_string}, {doors}"
+                        doors_string = f"{doors_string}, {door}"
                     else:
-                        doors_string = f"{doors}"
+                        doors_string = f"{door}"
 
                 doors_string = f"Doors: {doors_string}\n\n"
 
@@ -193,6 +193,76 @@ class AdventureGame:
                             room['show_message'] = True
             if found_door is False:
                 room['message'] = f"You can not go {item}"
+                room['show_message'] = True
+        elif action == "use":
+            if item in self.inventory:
+                remove_item = False
+                required_items = True
+                item_used = False
+                inventory_item = self.inventory[item]
+
+                if "removeAfterUse" in inventory_item:
+                    remove_item = inventory_item['removeAfterUse']
+
+                if "requiredToUse" in inventory_item:
+                    required_items = False
+                    required_items = inventory_item['requiredToUse']
+                    inv_items_required = len(required_items)
+                    for inv_item in self.inventory:
+                        if inv_item in required_items:
+                            inv_items_required -= 1
+                    if inv_items_required > 0:
+                        required_items = True
+
+                if not(required_items):
+                    room['message'] = "You need another item to use this"
+                    room['show_message'] = True
+                else:
+                    # use the item
+                    room['message'] = f"You use the {item}"
+                    room['show_message'] = True
+
+                if item_used and required_items and remove_item:
+                    del self.inventory[item]
+            else:
+                singular_item = "a "
+                if item[-1] == "s":
+                    singular_item = "any "
+                room['message'] = (
+                    f"You are not carrying {singular_item}"
+                    f"{item}"
+                )
+                room['show_message'] = True
+            pass
+        elif action == "take":
+            if item in room['items']:
+                take_item = True
+                if "requiredToTake" in room['items'][item]:
+                    required_items = room['items'][item]['requiredToTake']
+                    inv_items_required = len(required_items)
+                    for inventory_item in self.inventory:
+                        if inventory_item in required_items:
+                            inv_items_required -= 1
+                    if inv_items_required > 0:
+                        take_item = False
+                        if "requiredToTakeText" in room['items'][item]:
+                            room['message'] = \
+                                room['items'][item]['requiredToTakeText']
+                        else:
+                            room['message'] = \
+                                "Can't touch this"
+                        room['show_message'] = True
+                if take_item:
+                    self.inventory[item] = item
+                    del room['items'][item]
+            else:
+                singular_item = "is no "
+                if item[-1] == "s":
+                    singular_item = "are not any "
+                room['message'] = (
+                    f"There {singular_item}"
+                    f"{item} here"
+                )
                 room['show_message'] = True
         elif action == "help":
             room['message'] = "This message is not very helpful"
