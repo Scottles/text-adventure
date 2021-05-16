@@ -1,5 +1,5 @@
 ---
-start_room: "West room"
+start_room: "intro"
 rooms:
   - name: "intro"
     description: "Welcome to this test adventure"
@@ -39,6 +39,8 @@ rooms:
         requiredToTakeText: "You don't want to get finger prints on it"
         requiredToUse:
           - "gloves"
+        requiredToUseText: "You don't want to tarnish the gold finish"
+        takeText: "You put the gloves on and carefully pick up the gold key"
         removeAfterUse: false
     doors:
       - name: "east"
@@ -54,6 +56,9 @@ rooms:
         type: "portal"
         open: true
         destination: "warp1"
+        blocks_entering:
+          - "gold key"
+        blocks_text: "You can not enter a portal whilst carrying gold"
   - name: "warp1"
     description: "You are flying through space"
     type: "warp"

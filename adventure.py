@@ -67,10 +67,13 @@ class AdventureGame:
                         maze_room['destination'] = start_room
 
             # Load items in room
+            maze_room['items'] = items
             if 'items' in room:
                 for item in room['items']:
                     items[item['name']] = item
                 maze_room['items'] = items
+                if 'emptyDescription' in room:
+                    maze_room['emptyWhenRemoved'] = items.copy()
 
             # Load doors in room
             if 'doors' in room:
@@ -88,32 +91,49 @@ class AdventureGame:
             maze[room['name']] = maze_room
         return maze, start_room
 
+    def get_help_message(self):
+        """
+        Returns the help message
+        """
+        message = (
+            "Commands:\n"
+            "help - see this help\n"
+            "go <direction> - Go in a given direction\n"
+            "take <item> - take an item\n"
+            "use <item> - Use an inventory item\n"
+            "drop <item> - Drop a carried item in room\n"
+            "exit - quit game\n"
+                )
+        return message
+
     def render_room(self, room):
         """
         Render the room for the user
         """
 
         message = ""
-        description = f"{room['description']}\n"
+        description = ""
         objects_string = ""
         doors_string = ""
         inventory_string = ""
+        room_type = ""
+
+        if "type" in room:
+            room_type = room['type']
 
         if "message" in room \
            and 'show_message' in room:
             if room['show_message']:
                 message = f"\n{room['message']}\n"
+                room['message'] = ""
                 room['show_message'] = False
 
         if "show_help" in room:
             if room['show_help']:
-                message += (
-                    "Commands:\n"
-                    "help - see this help\n"
-                    "exit - quit game\n"
-                )
+                message += self.get_help_message()
                 room['show_help'] = False
 
+        room_empty = True
         if "items" in room:
             if room['items']:
                 for item in room['items']:
@@ -123,9 +143,17 @@ class AdventureGame:
                         objects_string = f"{item}"
 
                 objects_string = f"Objects you can see: {objects_string}\n"
-            else:
-                if "emptyDescription" in room:
-                    description = f"{room['emptyDescription']}\n"
+
+            if "emptyWhenRemoved" in room:
+                for room_item in room['emptyWhenRemoved']:
+                    if room_item in room['items']:
+                        room_empty = False
+                        break
+
+        if room_empty and "emptyDescription" in room:
+            description = f"{room['emptyDescription']}\n"
+        else:
+            description = f"{room['description']}\n"
 
         if "doors" in room:
             if room['doors']:
@@ -137,7 +165,7 @@ class AdventureGame:
 
                 doors_string = f"Doors: {doors_string}\n\n"
 
-        if self.inventory:
+        if self.inventory and (room_type != "warp" and room_type != "end"):
             for item in self.inventory:
                 if inventory_string:
                     inventory_string = f"{inventory_string}, {item}"
@@ -187,17 +215,47 @@ class AdventureGame:
                         if "open" in room['doors'][item]:
                             door_open = room['doors'][item]['open']
                         if door_open:
-                            current_room = room['doors'][item]['destination']
+                            blocked_from_entering = False
+                            if "blocks_entering" in room['doors'][item]:
+                                for inv_item in self.inventory:
+                                    if inv_item in room['doors'][
+                                            item]['blocks_entering']:
+                                        blocked_from_entering = True
+
+                            if blocked_from_entering:
+                                if "blocks_text" in room['doors'][item]:
+                                    room['message'] = room['doors'][
+                                        item]['blocks_text']
+                                else:
+                                    room['message'] = (
+                                        "Something you carry prevents "
+                                        "you entering"
+                                    )
+                                room['show_message'] = True
+                            else:
+                                current_room = room['doors'][item]['destination']
                         else:
-                            room['message'] = f"The path {item} is blocked"
-                            room['show_message'] = True
+                            path_blocked = False
+                            if "keys" in room['doors'][item]:
+                                if len(room['doors'][item]['keys']) > 0:
+                                    room['message'] = \
+                                        f"The {item} door is locked"
+                                    room['show_message'] = True
+                                else:
+                                    path_blocked = True
+                            else:
+                                path_blocked = True
+                            if path_blocked:
+                                room['message'] = \
+                                    f"The {item} path is blocked"
+                                room['show_message'] = True
             if found_door is False:
                 room['message'] = f"You can not go {item}"
                 room['show_message'] = True
         elif action == "use":
             if item in self.inventory:
                 remove_item = False
-                required_items = True
+                have_required_items = False
                 item_used = False
                 inventory_item = self.inventory[item]
 
@@ -205,25 +263,52 @@ class AdventureGame:
                     remove_item = inventory_item['removeAfterUse']
 
                 if "requiredToUse" in inventory_item:
-                    required_items = False
                     required_items = inventory_item['requiredToUse']
                     inv_items_required = len(required_items)
                     for inv_item in self.inventory:
                         if inv_item in required_items:
                             inv_items_required -= 1
                     if inv_items_required > 0:
-                        required_items = True
+                        have_required_items = False
+                    else:
+                        have_required_items = True
+                else:
+                    have_required_items = True
 
-                if not(required_items):
-                    room['message'] = "You need another item to use this"
+                if not have_required_items:
+                    if "requiredToUseText" in inventory_item:
+                        room['message'] = inventory_item['requiredToUseText']
+                    else:
+                        room['message'] = "You need another item to use this"
                     room['show_message'] = True
                 else:
                     # use the item
-                    room['message'] = f"You use the {item}"
-                    room['show_message'] = True
-
+                    # scan through closed doors
+                    # to see if you can use item
+                    for door, door_values in room['doors'].items():
+                        if "keys" in door_values:
+                            required_keys = len(door_values['keys'])
+                            if item in door_values['keys']:
+                                required_keys -= 1
+                                door_values['keys'].remove(item)
+                                item_used = True
+                            if required_keys > 0:
+                                room['message'] += (
+                                    "A lock was disengaged on "
+                                    f"{door_values['name']} door\n"
+                                    f"{required_keys:.0f} locks remain\n"
+                                )
+                                room['show_message'] = True
+                            else:
+                                door_values['open'] = True
+                                room['message'] += \
+                                    f"The {door_values['name']} door opened\n"
+                                room['show_message'] = True
                 if item_used and required_items and remove_item:
                     del self.inventory[item]
+                elif not item_used and have_required_items:
+                    room['message'] = f"You can not use the {item} here"
+                    room['show_message'] = True
             else:
                 singular_item = "a "
                 if item[-1] == "s":
@@ -253,7 +338,15 @@ class AdventureGame:
                                 "Can't touch this"
                         room['show_message'] = True
                 if take_item:
-                    self.inventory[item] = item
+                    if "takeText" in room['items'][item]:
+                        room['message'] = \
+                            f"{room['items'][item]['takeText']}"
+                        room['show_message'] = True
+                    else:
+                        room['message'] = \
+                            f"You take the {item}"
+                        room['show_message'] = True
+                    self.inventory[item] = room['items'][item]
                     del room['items'][item]
             else:
                 singular_item = "is no "
@@ -264,9 +357,23 @@ class AdventureGame:
                     f"{item} here"
                 )
                 room['show_message'] = True
+        elif action == "drop":
+            if item in self.inventory:
+                room['items'][item] = self.inventory[item]
+                del self.inventory[item]
+                room['message'] = f"You dropped the {item}"
+                room['show_message'] = True
+            else:
+                singular_item = "a "
+                if item[-1] == "s":
+                    singular_item = "any "
+                room['message'] = (
+                    f"You are not carrying {singular_item}"
+                    f"{item}"
+                )
+                room['show_message'] = True
         elif action == "help":
-            room['message'] = "This message is not very helpful"
-            room['show_message'] = True
+            room['show_help'] = True
         elif action == "exit":
             run_game = False
 
