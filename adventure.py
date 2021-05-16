@@ -103,7 +103,7 @@ class AdventureGame:
             "use <item> - Use an inventory item\n"
             "drop <item> - Drop a carried item in room\n"
             "exit - quit game\n"
-                )
+        )
         return message
 
     def render_room(self, room):
