@@ -25,6 +25,7 @@ rooms:
         open: false
         keys:
           - "gold key"
+          - "silver key"
         destination: "East room"
   - name: "West room"
     message: "Hi there! This is a test adventure"
@@ -42,6 +43,7 @@ rooms:
         requiredToUseText: "You don't want to tarnish the gold finish"
         takeText: "You put the gloves on and carefully pick up the gold key"
         removeAfterUse: false
+      - name: "silver key"
     doors:
       - name: "east"
         open: true

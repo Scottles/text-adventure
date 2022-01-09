@@ -306,7 +306,7 @@ class AdventureGame:
                                 room['message'] += \
                                     f"The {door_values['name']} door opened\n"
                                 room['show_message'] = True
-                if item_used and required_items and remove_item:
+                if item_used and have_required_items and remove_item:
                     del self.inventory[item]
                 elif not item_used and have_required_items:
                     room['message'] = f"You can not use the {item} here"
