@@ -16,7 +16,13 @@ rooms:
       You are in an empty room. There is a pair of gloves on the floor
     emptyDescription: "You are in an empty room."
     items:
-      - name: "gloves"
+      - name: "left glove"
+        combines_with:
+          - "right glove"
+        combined_name: "gloves"
+        combined_item:
+          removeAfterUse: False
+        combined_text: "A left and right glove makes a pair of gloves"
     doors:
       - name: "west"
         open: true
@@ -44,6 +50,7 @@ rooms:
         takeText: "You put the gloves on and carefully pick up the gold key"
         removeAfterUse: false
       - name: "silver key"
+      - name: "right glove"
     doors:
       - name: "east"
         open: true

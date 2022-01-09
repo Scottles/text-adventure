@@ -14,6 +14,7 @@ class AdventureGame:
     maze = None
     current_room = None
     inventory = {}
+    combinable_items = {}
 
     def __init__(self, game_file):
         self.maze, self.current_room = self.load_game(game_file)
@@ -121,12 +122,10 @@ class AdventureGame:
         if "type" in room:
             room_type = room['type']
 
-        if "message" in room \
-           and 'show_message' in room:
-            if room['show_message']:
+        if "message" in room:
+            if room['message'] != "":
                 message = f"\n{room['message']}\n"
                 room['message'] = ""
-                room['show_message'] = False
 
         if "show_help" in room:
             if room['show_help']:
@@ -232,7 +231,6 @@ class AdventureGame:
                                         "Something you carry prevents "
                                         "you entering"
                                     )
-                                room['show_message'] = True
                             else:
                                 current_room = room['doors'][
                                     item]['destination']
@@ -242,7 +240,6 @@ class AdventureGame:
                                 if len(room['doors'][item]['keys']) > 0:
                                     room['message'] = \
                                         f"The {item} door is locked"
-                                    room['show_message'] = True
                                 else:
                                     path_blocked = True
                             else:
@@ -250,10 +247,8 @@ class AdventureGame:
                             if path_blocked:
                                 room['message'] = \
                                     f"The {item} path is blocked"
-                                room['show_message'] = True
             if found_door is False:
                 room['message'] = f"You can not go {item}"
-                room['show_message'] = True
         elif action == "use" and item != "":
             if item in self.inventory:
                 remove_item = False
@@ -282,7 +277,6 @@ class AdventureGame:
                         room['message'] = inventory_item['requiredToUseText']
                     else:
                         room['message'] = "You need another item to use this"
-                    room['show_message'] = True
                 else:
                     # use the item
                     # scan through closed doors
@@ -300,17 +294,14 @@ class AdventureGame:
                                     f"{door_values['name']} door\n"
                                     f"{required_keys:.0f} locks remain\n"
                                 )
-                                room['show_message'] = True
                             else:
                                 door_values['open'] = True
                                 room['message'] += \
                                     f"The {door_values['name']} door opened\n"
-                                room['show_message'] = True
                 if item_used and have_required_items and remove_item:
                     del self.inventory[item]
                 elif not item_used and have_required_items:
                     room['message'] = f"You can not use the {item} here"
-                    room['show_message'] = True
             else:
                 singular_item = "a "
                 if item[-1] == "s":
@@ -319,7 +310,6 @@ class AdventureGame:
                     f"You are not carrying {singular_item}"
                     f"{item}"
                 )
-                room['show_message'] = True
             pass
         elif action == "take" and item != "":
             if item in room['items']:
@@ -338,16 +328,34 @@ class AdventureGame:
                         else:
                             room['message'] = \
                                 "Can't touch this"
-                        room['show_message'] = True
                 if take_item:
+                    # Check if item is combinable and if so
+                    # add to combinable item list
+                    if "combines_with" \
+                       and "combined_name" in room[
+                           'items'][item]:
+                        combined_name = room['items'][item]['combined_name']
+                        self.combinable_items[combined_name] = {}
+                        self.combinable_items[combined_name][
+                            'parts_list'] = \
+                            room['items'][item]['combines_with']
+                        self.combinable_items[combined_name][
+                            'parts_list'].append(item)
+                        if "combined_item" in room['items'][item]:
+                            self.combinable_items[combined_name].update(
+                                room['items'][item]['combined_item']
+                            )
+                        if "combined_text" in room['items'][item]:
+                            self.combinable_items[combined_name][
+                                'combined_text'] = \
+                                    room['items'][item]['combined_text']
+
                     if "takeText" in room['items'][item]:
                         room['message'] = \
                             f"{room['items'][item]['takeText']}"
-                        room['show_message'] = True
                     else:
                         room['message'] = \
                             f"You take the {item}"
-                        room['show_message'] = True
                     self.inventory[item] = room['items'][item]
                     del room['items'][item]
             else:
@@ -358,13 +366,11 @@ class AdventureGame:
                     f"There {singular_item}"
                     f"{item} here"
                 )
-                room['show_message'] = True
         elif action == "drop" and item != "":
             if item in self.inventory:
                 room['items'][item] = self.inventory[item]
                 del self.inventory[item]
                 room['message'] = f"You dropped the {item}"
-                room['show_message'] = True
             else:
                 singular_item = "a "
                 if item[-1] == "s":
@@ -373,13 +379,48 @@ class AdventureGame:
                     f"You are not carrying {singular_item}"
                     f"{item}"
                 )
-                room['show_message'] = True
         elif action == "help" or action == "":
             room['show_help'] = True
         elif action == "exit":
             run_game = False
 
         return room, current_room, run_game
+
+    def combine_items(self, room):
+        """
+        Scans for combinable items in the inventory and combines
+        them when possible
+        """
+
+        combined_items = []
+
+        for item_name, item_values in self.combinable_items.items():
+            collected_parts = 0
+            for part in item_values['parts_list']:
+                if part in self.inventory:
+                    collected_parts += 1
+
+            if collected_parts == len(item_values['parts_list']):
+                # All parts collected. Remove parts from inventory and
+                # store combined item in inventory
+                for part in item_values['parts_list']:
+                    del self.inventory[part]
+
+                self.inventory[item_name] = item_values
+                if "combined_text" in item_values:
+                    if "message" in room:
+                        message = item_values['combined_text']
+                        if room['message'] != "":
+                            room['message'] = f"{room['message']}\n{message}"
+                        else:
+                            room['message'] = message
+                combined_items.append(item_name)
+
+        # clean up combined items
+        for item in combined_items:
+            del self.combinable_items[item]
+
+        return
 
     def start(self):
         """
@@ -407,6 +448,7 @@ class AdventureGame:
                 user_input = input("\n> ")
                 room, self.current_room, run_game = \
                     self.process_input(user_input, room)
+                self.combine_items(room)
                 if self.current_room not in self.maze:
                     print("ERROR warping to non-existent room")
                     run_game = False
