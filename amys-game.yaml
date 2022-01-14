@@ -1,0 +1,74 @@
+---
+start_room: "garden"
+rooms:
+  - name: "garden"
+    description: |
+      You are on an abandoned garden. The only way is forwards, into a creepy
+      looking shack.
+    doors:
+      - name: "east"
+        open: true
+        destination: "lounge"
+  - name: "lounge"
+    description: |
+      You are in the lounge. There is a door infront of you.
+      You can pick up an oven glove.
+    emptyDescription: |
+      You are in the lounge. there is a door infront of you.
+    items:
+      - name: "left oven glove"
+        combines_with:
+          - "right oven glove"
+        combined_name: "oven gloves"
+        combined_text: "You now have a pair of oven gloves"     
+    doors:
+      - name: "east"
+        open: true
+        destination: "dining room"
+      - name: "south"
+        destination: "hallway"
+        open: false
+        keys:
+          - "oven gloves"
+        hint: "The door is really hot"
+  - name: "dining room"
+    description: |
+      This room appears to be the dining room. Theres nothing but an empty
+      plate and the pair to the oven glove.
+    emptyDescription: "This room appears to be the dining room."
+    items:
+      - name: "right oven glove"
+    doors:
+      - name: "west"
+        open: true
+        destination: "lounge"
+  - name: "hallway"
+    description: |
+      This is a hallway, there's a door infront of you and a wierd looking
+      picture.
+    doors:
+      - name: "north"
+        open: true
+        destination: "lounge"
+      - name: "south"
+        open: true
+        destination: "kitchen"
+  - name: "kitchen"
+    description: |
+      Ahhh! The door behind you has turned into a brick wall! Your in an empty 
+      kitchen. There's an oven - turned on - you try changing it 
+      off, but you can't. There's a glow in it.
+    doors:
+      - name: "east"
+        open: false
+        keys:
+          - "oven gloves"
+        destination: "warp1"
+  - name: "warp1"
+    description: "You are flying through space"
+    type: "warp"
+    destination: "garage"
+    duration: 5
+  - name: "garage"
+    description: |
+      WOW! You teleported to the garage!
