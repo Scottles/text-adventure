@@ -13,7 +13,7 @@ rooms:
     duration: 3
   - name: "Room1"
     description: |
-      You are in an empty room. There is a pair of gloves on the floor
+      You are in an empty room. There is a glove on the floor
     emptyDescription: "You are in an empty room."
     items:
       - name: "left glove"
@@ -23,6 +23,17 @@ rooms:
         combined_item:
           removeAfterUse: False
         combined_text: "A left and right glove makes a pair of gloves"
+      - name: "magic scroll"
+        takeText: |
+          The scroll has a large passage of text written on it.
+          You know these words must be read aloud.
+        useText: |
+          You read the passage of text on the scroll aloud.
+          The portal comes to life.
+        cannotUseText: |
+          You read the passage of text on the scroll aloud.
+          Nothing happens
+        removeAfterUse: true
     doors:
       - name: "west"
         open: true
@@ -32,11 +43,10 @@ rooms:
         hint: "You notice the door has two locks"
         keys:
           - "gold key"
-          - "silver key"
+          - "rusty key"
         destination: "East room"
   - name: "West room"
-    message: "Hi there! This is a test adventure"
-    show_message: true
+    welcome_message: "Hi there! This is a test adventure"
     show_help: true
     description: "This is the west room. There is a gold key on the floor"
     emptyDescription: "This is the west room."
@@ -50,25 +60,32 @@ rooms:
         requiredToUseText: "You don't want to tarnish the gold finish"
         takeText: "You put the gloves on and carefully pick up the gold key"
         removeAfterUse: false
-      - name: "silver key"
+      - name: "rusty key"
       - name: "right glove"
     doors:
       - name: "east"
         open: true
         destination: "Room1"
   - name: "East room"
-    description: "This is the east room. To the south is a portal"
+    description: |
+      This is the east room. To the south is a magic portal encased
+      in a stone doorway. The stone has an enscription which reads:
+      'Only those with no gold and who have uttered the magic words
+      can enter'
     doors:
       - name: "west"
         open: true
         destination: "Room1"
       - name: "south"
         type: "portal"
-        open: true
+        open: false
+        hidden: true
         destination: "warp1"
         blocks_entering:
           - "gold key"
         blocks_text: "You can not enter a portal whilst carrying gold"
+        keys:
+          - "magic scroll"
   - name: "warp1"
     description: "You are flying through space"
     type: "warp"
