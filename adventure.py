@@ -88,6 +88,9 @@ class AdventureGame:
                     monsters[monster['name']] = monster
                 maze_room['monsters'] = monsters
 
+            # Initialise room message
+            maze_room['message'] = ""
+
             # Store processed room in maze
             maze[room['name']] = maze_room
         return maze, start_room
@@ -240,6 +243,11 @@ class AdventureGame:
                                 if len(room['doors'][item]['keys']) > 0:
                                     room['message'] = \
                                         f"The {item} door is locked"
+                                    if 'hint' in room['doors'][item]:
+                                        room['message'] = (
+                                            f"{room['message']}\n"
+                                            f"{room['doors'][item]['hint']}"
+                                        )
                                 else:
                                     path_blocked = True
                             else:

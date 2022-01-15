@@ -29,6 +29,7 @@ rooms:
         destination: "West room"
       - name: "east"
         open: false
+        hint: "You notice the door has two locks"
         keys:
           - "gold key"
           - "silver key"
