@@ -40,9 +40,7 @@ class AdventureGame:
             maze_room['name'] = room['name']
 
             if 'welcome_message' in room:
-                maze_room['welcome_message'] = room['welcome_message']
-                if "show_welcome" in room:
-                    maze_room['show_welcome'] = room['show_welcome']
+                maze_room['message'] = room['welcome_message']
 
             if 'show_help' in room:
                 maze_room['show_help'] = room['show_help']
@@ -89,7 +87,8 @@ class AdventureGame:
                 maze_room['monsters'] = monsters
 
             # Initialise room message
-            maze_room['message'] = ""
+            if 'message' not in maze_room:
+                maze_room['message'] = ""
 
             # Store processed room in maze
             maze[room['name']] = maze_room
@@ -100,7 +99,7 @@ class AdventureGame:
         Returns the help message
         """
         message = (
-            "Commands:\n"
+            "\nCommands:\n"
             "help - see this help\n"
             "go <direction> - Go in a given direction\n"
             "take <item> - take an item\n"
