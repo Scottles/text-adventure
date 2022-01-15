@@ -1,0 +1,42 @@
+---
+start_room: "porch"
+rooms:
+  - name: "porch"
+    description: |
+      You are standing in the porchway of a house. In the corner is an
+      umbrella stand full pink, purple and blue umbrellas. There is something
+      glittery on the floor.
+      The front door of the house is east.
+    emptyDescription: |
+      You are standing in the porchway of a house. In the corner is an
+      umbrella stand full pink, purple and blue umbrellas.
+      The front door of the house is east.
+    items:
+      - name: "pink umbrella"
+        takeText: "You take pink umbrella, could be useful if it rains"
+      - name: "pink glitter sparkle"
+        takeText: "The glitter sparkle looks so pretty"
+        combines_with:
+          - "purple glitter sparkle"
+          - "pink glitter sparkle"
+          - "red glitter sparkle"
+          - "orange glitter sparkle"
+          - "yellow glitter sparkle"
+          - "green glitter sparkle"
+          - "blue glitter sparkle"
+          - "magenta glitter sparkle"
+          - "indigo glitter sparkle"
+          - "lime glitter sparkle"
+          - "silver glitter sparkle"
+          - "gold glitter sparkle"
+          - "empty bottle"
+        combined_name: "bottle of rainbow glitter"
+        combined_text: |
+          You put all the sparkles in to the empty bottle.
+          You now have a bottle of rainbow glitter
+        combined_item:
+          removeAfterUse: true
+    doors:
+      - name: "east"
+        open: true
+        destination: "entrance hallway"
