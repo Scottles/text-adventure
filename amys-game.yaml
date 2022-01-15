@@ -20,7 +20,7 @@ rooms:
         combines_with:
           - "right oven glove"
         combined_name: "oven gloves"
-        combined_text: "You now have a pair of oven gloves"     
+        combined_text: "You now have a pair of oven gloves"
     doors:
       - name: "east"
         open: true
@@ -55,8 +55,8 @@ rooms:
         destination: "kitchen"
   - name: "kitchen"
     description: |
-      Ahhh! The door behind you has turned into a brick wall! Your in an empty 
-      kitchen. There's an oven - turned on - you try changing it 
+      Ahhh! The door behind you has turned into a brick wall! Your in an empty
+      kitchen. There's an oven - turned on - you try changing it
       off, but you can't. There's a glow in it.
     doors:
       - name: "east"
@@ -72,3 +72,39 @@ rooms:
   - name: "garage"
     description: |
       WOW! You teleported to the garage!
+    doors:
+      - name: "east"
+        open: true
+        destination: "garage 2"
+  - name: "garage 2"
+    description: |
+      You walk further into the garage and hear a crying voice.
+      There are doors on all sides.
+    doors:
+      - name: "west"
+        open: true
+        destination: "garage"
+      - name: "north"
+        open: true
+        destination: "storage"
+      - name: "east"
+        open: true
+        destination: "furniture room"
+      - name: "south"
+        open: true
+        destination: "portal room"
+  - name: "storage"
+    description: |
+      You find a boy, who claims that he is prince Allan.
+    doors:
+      - name: "south"
+        open: true
+        destination: "garage 2"
+  - name: "furniture room"
+    description: |
+      There is only some furniture in this room. It's creepy though, you
+      want to turn back.
+    doors:
+      - name: "west"
+        open: true
+        destination: "garage 2"
