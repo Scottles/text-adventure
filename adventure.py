@@ -159,11 +159,15 @@ class AdventureGame:
 
         if "doors" in room:
             if room['doors']:
-                for door in room['doors']:
-                    if doors_string:
-                        doors_string = f"{doors_string}, {door}"
-                    else:
-                        doors_string = f"{door}"
+                for door, values in room['doors'].items():
+                    hidden = False
+                    if 'hidden' in values:
+                        hidden = values['hidden']
+                    if not hidden:
+                        if doors_string:
+                            doors_string = f"{doors_string}, {door}"
+                        else:
+                            doors_string = f"{door}"
 
                 doors_string = f"Doors: {doors_string}\n\n"
 
@@ -210,8 +214,12 @@ class AdventureGame:
 
         if action == "go" and item != "":
             found_door = False
+            hidden = False
             if item in room['doors']:
-                if "destination" in room['doors'][item]:
+                if 'hidden' in room['doors'][item]:
+                    hidden = room['doors'][item]['hidden']
+                if "destination" in room['doors'][item] and \
+                   not hidden:
                     if room['doors'][item]['destination'] in self.maze:
                         found_door = True
                         door_open = True
@@ -304,12 +312,24 @@ class AdventureGame:
                                 )
                             else:
                                 door_values['open'] = True
-                                room['message'] += \
-                                    f"The {door_values['name']} door opened\n"
+                                if 'hidden' in door_values:
+                                    if door_values['hidden']:
+                                        door_values['hidden'] = False
+                                if 'useText' not in inventory_item:
+                                    room['message'] += (
+                                        f"The {door_values['name']} "
+                                        "door opened\n"
+                                    )
+                                else:
+                                    room['message'] += \
+                                        f"{inventory_item['useText']}\n"
                 if item_used and have_required_items and remove_item:
                     del self.inventory[item]
                 elif not item_used and have_required_items:
-                    room['message'] = f"You can not use the {item} here"
+                    if 'cannotUseText' in inventory_item:
+                        room['message'] = f"{inventory_item['cannotUseText']}"
+                    else:
+                        room['message'] = f"You can not use the {item} here"
             else:
                 singular_item = "a "
                 if item[-1] == "s":
